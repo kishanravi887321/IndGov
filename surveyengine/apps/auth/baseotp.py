@@ -61,7 +61,7 @@ class BaseOtpEmailSender:
         Sends the email using Brevo (SMTP).
         """
         send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
-            sender={"name": "Sākṣin", "email": settings.FORWARDING_EMAIL},
+            sender={"name": "Government Of India ", "email": settings.FORWARDING_EMAIL},
             to=[{"email": self.email}],
             subject=subject,
             text_content=text_content,

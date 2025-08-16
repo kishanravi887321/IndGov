@@ -4,7 +4,6 @@ class LoginOtpSender(BaseOtpEmailSender):
     def __init__(self,email):
         super().__init__(email,purpose="login")
 
-
     def send(self):
         otp=self.generate_otp()
         subject = "🔐 Government of India MPOS - Login Authentication Required"
@@ -113,22 +112,6 @@ class LoginOtpSender(BaseOtpEmailSender):
                     text-align: center;
                     position: relative;
                 }}
-                .otp-section::before {{
-                    content: '';
-                    position: absolute;
-                    top: -1px;
-                    left: -1px;
-                    right: -1px;
-                    bottom: -1px;
-                    background: linear-gradient(45deg, #FF6600, #138808, #FF6600);
-                    border-radius: 12px;
-                    z-index: -1;
-                    animation: rotate 3s linear infinite;
-                }}
-                @keyframes rotate {{
-                    0% {{ transform: rotate(0deg); }}
-                    100% {{ transform: rotate(360deg); }}
-                }}
                 .otp-label {{
                     color: #138808;
                     font-size: 13px;
@@ -140,79 +123,96 @@ class LoginOtpSender(BaseOtpEmailSender):
                 .otp {{
                     font-size: 32px;
                     font-weight: 700;
-                    color: #1a365d;
-                    letter-spacing: 6px;
+                    color: #138808;
+                    letter-spacing: 8px;
                     font-family: 'Courier New', monospace;
                     margin: 0;
+                    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
                 }}
                 .security-notice {{
-                    background: #fef5e7;
-                    border-left: 4px solid #ed8936;
+                    background: #e8f5e8;
+                    border-left: 4px solid #138808;
                     border-radius: 6px;
                     padding: 20px;
-                    margin: 30px 0;
+                    margin: 25px 0;
                 }}
                 .notice-title {{
-                    color: #c05621;
+                    color: #138808;
                     font-weight: 600;
                     margin-bottom: 8px;
                     font-size: 14px;
                 }}
                 .notice-text {{
-                    color: #744210;
+                    color: #0d5f0d;
                     font-size: 14px;
                     margin: 0;
                 }}
                 .footer {{
-                    background: #2d3748;
-                    color: #a0aec0;
-                    padding: 30px;
+                    background: #138808;
+                    color: #ffffff;
+                    padding: 25px;
                     text-align: center;
-                    font-size: 14px;
+                    font-size: 13px;
                 }}
                 .footer-link {{
-                    color: #63b3ed;
+                    color: #FFE5B4;
                     text-decoration: none;
                 }}
                 .divider {{
-                    height: 1px;
-                    background: #e2e8f0;
-                    margin: 30px 0;
+                    height: 2px;
+                    background: linear-gradient(90deg, #FF6600, #138808, #FF6600);
+                    margin: 25px 0;
+                }}
+                .satyamev {{
+                    color: #138808;
+                    font-size: 12px;
+                    font-weight: 600;
+                    margin-top: 10px;
+                    font-style: italic;
                 }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <div class="logo">🔐 Sākṣin</div>
-                    <div class="subtitle">Secure Authentication Platform</div>
+                    <div class="gov-emblem">🇮🇳</div>
+                    <div class="logo">GOVERNMENT OF INDIA</div>
+                    <div class="subtitle">Multi-Purpose Online Survey Platform</div>
+                    <div class="hindi-text">भारत सरकार - MPOS</div>
                 </div>
                 <div class="content">
-                    <div class="security-badge">�</div>
-                    <h1 class="title">Authentication Required</h1>
+                    <div class="security-badge">🔐</div>
+                    <h1 class="title">प्रमाणीकरण आवश्यक / Authentication Required</h1>
                     <p class="description">
-                        A login attempt has been detected for your account. Please use the verification code below to complete your authentication.
+                        आपके MPOS खाते के लिए लॉगिन प्रयास का पता चला है। कृपया अपना प्रमाणीकरण पूरा करने के लिए नीचे दिए गए सत्यापन कोड का उपयोग करें।<br><br>
+                        A login attempt has been detected for your MPOS account. Please use the verification code below to complete your authentication.
                     </p>
                     
                     <div class="otp-section">
-                        <div class="otp-label">Verification Code</div>
+                        <div class="otp-label">सत्यापन कोड / Verification Code</div>
                         <div class="otp">{otp}</div>
                     </div>
                     
                     <div class="security-notice">
-                        <div class="notice-title">🛡️ Security Information</div>
-                        <p class="notice-text">This code expires in 10 minutes and can only be used once. Never share this code with anyone.</p>
+                        <div class="notice-title">🛡️ सुरक्षा जानकारी / Security Information</div>
+                        <p class="notice-text">यह कोड 10 मिनट में समाप्त हो जाता है और केवल एक बार उपयोग किया जा सकता है। कभी भी इस कोड को किसी के साथ साझा न करें। / This code expires in 10 minutes and can only be used once. Never share this code with anyone.</p>
                     </div>
                     
                     <div class="divider"></div>
                     
-                    <p style="color: #718096; font-size: 14px; text-align: center; margin: 0;">
+                    <p style="color: #6c757d; font-size: 14px; text-align: center; margin: 0;">
+                        यदि आपने इस लॉगिन अनुरोध की शुरुआत नहीं की है, तो कृपया इस ईमेल को अनदेखा करें और अपना पासवर्ड बदलने पर विचार करें।<br>
                         If you did not initiate this login request, please ignore this email and consider changing your password.
                     </p>
+                    <div class="satyamev">सत्यमेव जयते</div>
                 </div>
                 <div class="footer">
-                    <p>© 2025 Sākṣin. All rights reserved.</p>
-                    <p>Support: <a href="mailto:support@saksin.ai" class="footer-link">support@saksin.ai</a></p>
+                    <p>© 2025 Government of India - MPOS. All rights reserved.</p>
+                    <p>सहायता / Support: <a href="mailto:support@mpos.gov.in" class="footer-link">support@mpos.gov.in</a></p>
+                    <p style="margin-top: 10px; font-size: 11px;">
+                        <a href="#" class="footer-link">गोपनीयता नीति / Privacy Policy</a> | 
+                        <a href="#" class="footer-link">सेवा की शर्तें / Terms of Service</a>
+                    </p>
                 </div>
             </div>
         </body>
@@ -223,12 +223,10 @@ class LoginOtpSender(BaseOtpEmailSender):
 
         self.send_email(subject, text_content, html_content=html_content)
         return otp
-    
 
 class forgetPasswordOtpSender(BaseOtpEmailSender):
     def __init__(self,email):
         super().__init__(email,purpose="forget")
-
 
     def send(self):
         otp = self.generate_otp()
@@ -354,24 +352,6 @@ class forgetPasswordOtpSender(BaseOtpEmailSender):
                     margin: 0;
                     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
                 }}
-                .critical-notice {{
-                    background: #fff3cd;
-                    border-left: 4px solid #ffc107;
-                    border-radius: 6px;
-                    padding: 20px;
-                    margin: 25px 0;
-                }}
-                .notice-title {{
-                    color: #856404;
-                    font-weight: 600;
-                    margin-bottom: 8px;
-                    font-size: 14px;
-                }}
-                .notice-text {{
-                    color: #664d03;
-                    font-size: 14px;
-                    margin: 0;
-                }}
                 .steps {{
                     background: #f8f9fa;
                     border-radius: 8px;
@@ -398,6 +378,24 @@ class forgetPasswordOtpSender(BaseOtpEmailSender):
                     margin-right: 12px;
                     font-weight: 600;
                     font-size: 12px;
+                }}
+                .critical-notice {{
+                    background: #fff3cd;
+                    border-left: 4px solid #ffc107;
+                    border-radius: 6px;
+                    padding: 20px;
+                    margin: 25px 0;
+                }}
+                .notice-title {{
+                    color: #856404;
+                    font-weight: 600;
+                    margin-bottom: 8px;
+                    font-size: 14px;
+                }}
+                .notice-text {{
+                    color: #664d03;
+                    font-size: 14px;
+                    margin: 0;
                 }}
                 .footer {{
                     background: #138808;
@@ -492,7 +490,6 @@ class RegistrationOtpSender(BaseOtpEmailSender):
     def __init__(self,email):
         super().__init__(email,purpose="register")
 
-
     def send(self):
         otp = self.generate_otp()
         subject = "📧 Government of India MPOS - Account Verification Required"
@@ -503,7 +500,7 @@ class RegistrationOtpSender(BaseOtpEmailSender):
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Account Verification</title>
+            <title>MPOS Account Verification</title>
             <style>
                 @keyframes slideDown {{
                     from {{ transform: translateY(-20px); opacity: 0; }}
@@ -516,91 +513,116 @@ class RegistrationOtpSender(BaseOtpEmailSender):
                 .container {{
                     max-width: 650px;
                     margin: 0 auto;
-                    background: #f5f7fa;
-                    font-family: 'Arial', sans-serif;
+                    background: #f8f9fa;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     padding: 0;
+                    border: 1px solid #e9ecef;
                 }}
                 .header {{
-                    background: linear-gradient(135deg, #2b6cb0 0%, #3182ce 100%);
-                    padding: 40px 30px;
+                    background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+                    padding: 30px;
                     text-align: center;
                     color: white;
+                    border-bottom: 3px solid #138808;
                 }}
-                .logo {{
-                    font-size: 28px;
-                    font-weight: 600;
-                    margin-bottom: 8px;
-                    letter-spacing: 1px;
-                }}
-                .subtitle {{
-                    font-size: 16px;
-                    opacity: 0.9;
-                    font-weight: 300;
-                }}
-                .content {{
-                    background: white;
-                    padding: 50px 40px;
-                    animation: slideDown 0.6s ease-out;
-                }}
-                .verify-badge {{
+                .gov-emblem {{
                     width: 60px;
                     height: 60px;
-                    background: linear-gradient(135deg, #2b6cb0, #3182ce);
+                    background: white;
                     border-radius: 50%;
-                    margin: 0 auto 30px;
+                    margin: 0 auto 15px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 24px;
+                    color: #0056b3;
+                }}
+                .logo {{
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 5px;
+                    letter-spacing: 1px;
+                }}
+                .subtitle {{
+                    font-size: 14px;
+                    opacity: 0.95;
+                    font-weight: 400;
+                    margin-bottom: 5px;
+                }}
+                .hindi-text {{
+                    font-size: 16px;
+                    opacity: 0.9;
+                    font-weight: 500;
+                    margin-bottom: 10px;
+                }}
+                .content {{
+                    background: white;
+                    padding: 40px 35px;
+                    animation: slideDown 0.6s ease-out;
+                }}
+                .verify-badge {{
+                    width: 70px;
+                    height: 70px;
+                    background: linear-gradient(135deg, #0056b3, #138808);
+                    border-radius: 50%;
+                    margin: 0 auto 25px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 28px;
                     color: white;
                     animation: subtlePulse 3s infinite;
+                    border: 3px solid #fff;
+                    box-shadow: 0 4px 15px rgba(0, 86, 179, 0.3);
                 }}
                 .title {{
-                    color: #2b6cb0;
+                    color: #138808;
                     font-size: 24px;
-                    font-weight: 600;
+                    font-weight: 700;
                     margin: 0 0 20px 0;
                     text-align: center;
                 }}
                 .description {{
-                    color: #4a5568;
+                    color: #495057;
                     font-size: 16px;
                     line-height: 1.6;
                     text-align: center;
-                    margin-bottom: 35px;
+                    margin-bottom: 30px;
                 }}
                 .otp-section {{
-                    background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
-                    border: 2px solid #90cdf4;
+                    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+                    border: 2px solid #2196f3;
                     border-radius: 12px;
-                    padding: 30px;
-                    margin: 30px 0;
+                    padding: 25px;
+                    margin: 25px 0;
                     text-align: center;
                 }}
                 .otp-label {{
-                    color: #2c5282;
-                    font-size: 14px;
-                    font-weight: 500;
-                    margin-bottom: 15px;
+                    color: #1565c0;
+                    font-size: 13px;
+                    font-weight: 600;
+                    margin-bottom: 12px;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 1.5px;
                 }}
                 .otp {{
                     font-size: 32px;
                     font-weight: 700;
-                    color: #2b6cb0;
-                    letter-spacing: 6px;
+                    color: #0056b3;
+                    letter-spacing: 8px;
                     font-family: 'Courier New', monospace;
                     margin: 0;
+                    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
                 }}
                 .progress-section {{
-                    background: #f7fafc;
+                    background: #f8f9fa;
                     border-radius: 8px;
                     padding: 25px;
-                    margin: 30px 0;
+                    margin: 25px 0;
+                    border: 1px solid #dee2e6;
                 }}
                 .progress-title {{
-                    color: #2d3748;
+                    color: #138808;
                     font-weight: 600;
                     margin-bottom: 20px;
                     font-size: 16px;
@@ -628,20 +650,20 @@ class RegistrationOtpSender(BaseOtpEmailSender):
                     font-size: 14px;
                 }}
                 .step-completed {{
-                    background: #48bb78;
+                    background: #28a745;
                     color: white;
                 }}
                 .step-active {{
-                    background: #3182ce;
+                    background: #007bff;
                     color: white;
                 }}
                 .step-pending {{
-                    background: #e2e8f0;
-                    color: #a0aec0;
+                    background: #e9ecef;
+                    color: #6c757d;
                 }}
                 .step-text {{
                     font-size: 12px;
-                    color: #718096;
+                    color: #6c757d;
                     font-weight: 500;
                 }}
                 .progress-line {{
@@ -650,144 +672,157 @@ class RegistrationOtpSender(BaseOtpEmailSender):
                     left: 25%;
                     right: 25%;
                     height: 2px;
-                    background: #e2e8f0;
+                    background: #e9ecef;
                     z-index: 1;
                 }}
                 .progress-fill {{
                     height: 100%;
-                    background: #48bb78;
+                    background: #28a745;
                     width: 50%;
                 }}
-                .welcome-notice {{
-                    background: #f0fff4;
-                    border-left: 4px solid #48bb78;
-                    border-radius: 6px;
-                    padding: 20px;
-                    margin: 30px 0;
-                }}
-                .notice-title {{
-                    color: #276749;
-                    font-weight: 600;
-                    margin-bottom: 8px;
-                    font-size: 14px;
-                }}
-                .notice-text {{
-                    color: #2f855a;
-                    font-size: 14px;
-                    margin: 0;
-                }}
                 .features {{
-                    background: #f7fafc;
+                    background: #f8f9fa;
                     border-radius: 8px;
                     padding: 25px;
-                    margin: 30px 0;
+                    margin: 25px 0;
+                    border: 1px solid #dee2e6;
                 }}
                 .feature {{
                     display: flex;
                     align-items: center;
                     margin-bottom: 12px;
                     font-size: 14px;
-                    color: #4a5568;
+                    color: #495057;
                 }}
                 .feature-icon {{
                     margin-right: 12px;
                     font-size: 16px;
                 }}
-                .footer {{
-                    background: #2d3748;
-                    color: #a0aec0;
-                    padding: 30px;
-                    text-align: center;
+                .welcome-notice {{
+                    background: #d4edda;
+                    border-left: 4px solid #28a745;
+                    border-radius: 6px;
+                    padding: 20px;
+                    margin: 25px 0;
+                }}
+                .notice-title {{
+                    color: #155724;
+                    font-weight: 600;
+                    margin-bottom: 8px;
                     font-size: 14px;
                 }}
+                .notice-text {{
+                    color: #155724;
+                    font-size: 14px;
+                    margin: 0;
+                }}
+                .footer {{
+                    background: #138808;
+                    color: #ffffff;
+                    padding: 25px;
+                    text-align: center;
+                    font-size: 13px;
+                }}
                 .footer-link {{
-                    color: #63b3ed;
+                    color: #FFE5B4;
                     text-decoration: none;
                 }}
                 .divider {{
-                    height: 1px;
-                    background: #e2e8f0;
-                    margin: 30px 0;
+                    height: 2px;
+                    background: linear-gradient(90deg, #FF6600, #138808, #FF6600);
+                    margin: 25px 0;
+                }}
+                .satyamev {{
+                    color: #138808;
+                    font-size: 12px;
+                    font-weight: 600;
+                    margin-top: 10px;
+                    font-style: italic;
                 }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <div class="logo">📧 Sākṣin</div>
-                    <div class="subtitle">Professional Interview Platform</div>
+                    <div class="gov-emblem">🇮🇳</div>
+                    <div class="logo">GOVERNMENT OF INDIA</div>
+                    <div class="subtitle">Multi-Purpose Online Survey Platform</div>
+                    <div class="hindi-text">भारत सरकार - MPOS</div>
                 </div>
                 <div class="content">
                     <div class="verify-badge">✓</div>
-                    <h1 class="title">Complete Your Registration</h1>
+                    <h1 class="title">अपना पंजीकरण पूरा करें / Complete Your Registration</h1>
                     <p class="description">
-                        Welcome to Sākṣin! You're one step away from accessing our professional interview platform. Please verify your email address using the code below.
+                        MPOS में आपका स्वागत है! आप हमारे सरकारी सर्वेक्षण प्लेटफॉर्म तक पहुंचने से केवल एक कदम दूर हैं। कृपया नीचे दिए गए कोड का उपयोग करके अपना ईमेल पता सत्यापित करें।<br><br>
+                        Welcome to MPOS! You're one step away from accessing our government survey platform. Please verify your email address using the code below.
                     </p>
                     
                     <div class="progress-section">
-                        <div class="progress-title">Registration Progress</div>
+                        <div class="progress-title">पंजीकरण प्रगति / Registration Progress</div>
                         <div class="progress-steps">
                             <div class="progress-line">
                                 <div class="progress-fill"></div>
                             </div>
                             <div class="progress-step">
                                 <div class="step-circle step-completed">✓</div>
-                                <div class="step-text">Account Created</div>
+                                <div class="step-text">खाता बनाया गया / Account Created</div>
                             </div>
                             <div class="progress-step">
                                 <div class="step-circle step-active">2</div>
-                                <div class="step-text">Email Verification</div>
+                                <div class="step-text">ईमेल सत्यापन / Email Verification</div>
                             </div>
                             <div class="progress-step">
                                 <div class="step-circle step-pending">3</div>
-                                <div class="step-text">Complete Setup</div>
+                                <div class="step-text">सेटअप पूरा करें / Complete Setup</div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="otp-section">
-                        <div class="otp-label">Verification Code</div>
+                        <div class="otp-label">सत्यापन कोड / Verification Code</div>
                         <div class="otp">{otp}</div>
                     </div>
                     
                     <div class="features">
-                        <h3 style="color: #2d3748; margin: 0 0 20px 0; font-size: 16px;">What's waiting for you:</h3>
+                        <h3 style="color: #138808; margin: 0 0 20px 0; font-size: 16px;">आपका इंतजार कर रहा है / What's waiting for you:</h3>
                         <div class="feature">
                             <div class="feature-icon">🎯</div>
-                            <span>AI-powered interview simulations</span>
+                            <span>सरकारी सर्वेक्षण और डेटा संग्रह / Government surveys and data collection</span>
                         </div>
                         <div class="feature">
                             <div class="feature-icon">📊</div>
-                            <span>Detailed performance analytics</span>
+                            <span>विस्तृत रिपोर्टिंग और विश्लेषण / Detailed reporting and analytics</span>
                         </div>
                         <div class="feature">
-                            <div class="feature-icon">🏆</div>
-                            <span>Industry-specific question banks</span>
+                            <div class="feature-icon">🏛️</div>
+                            <span>नीति निर्माण में योगदान / Contribute to policy making</span>
                         </div>
                         <div class="feature">
-                            <div class="feature-icon">📈</div>
-                            <span>Progress tracking and improvement insights</span>
+                            <div class="feature-icon">🔒</div>
+                            <span>सुरक्षित और गोपनीय / Secure and confidential</span>
                         </div>
                     </div>
                     
                     <div class="welcome-notice">
-                        <div class="notice-title">🎯 Professional Development</div>
-                        <p class="notice-text">This verification code expires in 10 minutes. Keep this information confidential and secure.</p>
+                        <div class="notice-title">🎯 राष्ट्रीय सेवा / National Service</div>
+                        <p class="notice-text">यह सत्यापन कोड 10 मिनट में समाप्त हो जाता है। इस जानकारी को गोपनीय और सुरक्षित रखें। / This verification code expires in 10 minutes. Keep this information confidential and secure.</p>
                     </div>
                     
                     <div class="divider"></div>
                     
-                    <p style="color: #718096; font-size: 14px; text-align: center; margin: 0;">
+                    <p style="color: #6c757d; font-size: 14px; text-align: center; margin: 0;">
+                        यदि आपने यह खाता नहीं बनाया है, तो कृपया इस ईमेल को अनदेखा करें या हमारी सहायता टीम से संपर्क करें।<br>
                         If you didn't create this account, please ignore this email or contact our support team.
                     </p>
+                    <div class="satyamev">सत्यमेव जयते</div>
                 </div>
                 <div class="footer">
-                    <p>© 2025 Sākṣin. All rights reserved.</p>
-                    <p>Support: <a href="mailto:support@saksin.ai" class="footer-link">support@saksin.ai</a></p>
-                    <p style="margin-top: 15px; font-size: 12px;">
-                        <a href="#" class="footer-link">Privacy Policy</a> | 
-                        <a href="#" class="footer-link">Terms of Service</a> | 
-                        <a href="#" class="footer-link">Help Center</a>
+                    <p>© 2025 Government of India - MPOS. All rights reserved.</p>
+                    <p>सहायता / Support: <a href="mailto:support@mpos.gov.in" class="footer-link">support@mpos.gov.in</a></p>
+                    <p style="margin-top: 10px; font-size: 11px;">
+                        <a href="#" class="footer-link">गोपनीयता नीति / Privacy Policy</a> | 
+                        <a href="#" class="footer-link">सेवा की शर्तें / Terms of Service</a> | 
+                        <a href="#" class="footer-link">सहायता केंद्र / Help Center</a>
                     </p>
                 </div>
             </div>
@@ -795,18 +830,18 @@ class RegistrationOtpSender(BaseOtpEmailSender):
         </html>
         """
 
-        text_content = f"Welcome to Sākṣin!\n\nVerification Code: {otp}\n\nPlease use this code to complete your account verification. This code expires in 10 minutes.\n\nIf you didn't create this account, please ignore this email."
+        text_content = f"Government of India MPOS में आपका स्वागत है!\n\nसत्यापन कोड / Verification Code: {otp}\n\nकृपया अपना खाता सत्यापन पूरा करने के लिए इस कोड का उपयोग करें। यह कोड 10 मिनट में समाप्त हो जाता है।\n\nयदि आपने यह खाता नहीं बनाया है, तो कृपया इस ईमेल को अनदेखा करें।\n\nसत्यमेव जयते"
 
         self.send_email(subject, text_content, html_content=html_content)
         return otp
+
 class UpdatePasswordOtpSender(BaseOtpEmailSender):
     def __init__(self,email):
         super().__init__(email,purpose="update")
 
-
     def send(self):
         otp = self.generate_otp()
-        subject = "🔐 Sākṣin - Password Update Authorization"
+        subject = "🔐 Government of India MPOS - Password Update Authorization"
         
         html_content = f"""
         <!DOCTYPE html>
@@ -814,7 +849,7 @@ class UpdatePasswordOtpSender(BaseOtpEmailSender):
         <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Password Update</title>
+            <title>MPOS Password Update</title>
             <style>
                 @keyframes slideDown {{
                     from {{ transform: translateY(-20px); opacity: 0; }}
@@ -827,91 +862,116 @@ class UpdatePasswordOtpSender(BaseOtpEmailSender):
                 .container {{
                     max-width: 650px;
                     margin: 0 auto;
-                    background: #f5f7fa;
-                    font-family: 'Arial', sans-serif;
+                    background: #f8f9fa;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                     padding: 0;
+                    border: 1px solid #e9ecef;
                 }}
                 .header {{
-                    background: linear-gradient(135deg, #553c9a 0%, #6b46c1 100%);
-                    padding: 40px 30px;
+                    background: linear-gradient(135deg, #6f42c1 0%, #8e24aa 100%);
+                    padding: 30px;
                     text-align: center;
                     color: white;
+                    border-bottom: 3px solid #138808;
                 }}
-                .logo {{
-                    font-size: 28px;
-                    font-weight: 600;
-                    margin-bottom: 8px;
-                    letter-spacing: 1px;
-                }}
-                .subtitle {{
-                    font-size: 16px;
-                    opacity: 0.9;
-                    font-weight: 300;
-                }}
-                .content {{
-                    background: white;
-                    padding: 50px 40px;
-                    animation: slideDown 0.6s ease-out;
-                }}
-                .security-badge {{
+                .gov-emblem {{
                     width: 60px;
                     height: 60px;
-                    background: linear-gradient(135deg, #553c9a, #6b46c1);
+                    background: white;
                     border-radius: 50%;
-                    margin: 0 auto 30px;
+                    margin: 0 auto 15px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 24px;
+                    color: #6f42c1;
+                }}
+                .logo {{
+                    font-size: 22px;
+                    font-weight: 700;
+                    margin-bottom: 5px;
+                    letter-spacing: 1px;
+                }}
+                .subtitle {{
+                    font-size: 14px;
+                    opacity: 0.95;
+                    font-weight: 400;
+                    margin-bottom: 5px;
+                }}
+                .hindi-text {{
+                    font-size: 16px;
+                    opacity: 0.9;
+                    font-weight: 500;
+                    margin-bottom: 10px;
+                }}
+                .content {{
+                    background: white;
+                    padding: 40px 35px;
+                    animation: slideDown 0.6s ease-out;
+                }}
+                .security-badge {{
+                    width: 70px;
+                    height: 70px;
+                    background: linear-gradient(135deg, #6f42c1, #138808);
+                    border-radius: 50%;
+                    margin: 0 auto 25px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 28px;
                     color: white;
                     animation: subtlePulse 3s infinite;
+                    border: 3px solid #fff;
+                    box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
                 }}
                 .title {{
-                    color: #553c9a;
+                    color: #138808;
                     font-size: 24px;
-                    font-weight: 600;
+                    font-weight: 700;
                     margin: 0 0 20px 0;
                     text-align: center;
                 }}
                 .description {{
-                    color: #4a5568;
+                    color: #495057;
                     font-size: 16px;
                     line-height: 1.6;
                     text-align: center;
-                    margin-bottom: 35px;
+                    margin-bottom: 30px;
                 }}
                 .otp-section {{
-                    background: linear-gradient(135deg, #f3f0ff 0%, #ddd6fe 100%);
-                    border: 2px solid #c4b5fd;
+                    background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+                    border: 2px solid #9c27b0;
                     border-radius: 12px;
-                    padding: 30px;
-                    margin: 30px 0;
+                    padding: 25px;
+                    margin: 25px 0;
                     text-align: center;
                 }}
                 .otp-label {{
-                    color: #44337a;
-                    font-size: 14px;
-                    font-weight: 500;
-                    margin-bottom: 15px;
+                    color: #4a148c;
+                    font-size: 13px;
+                    font-weight: 600;
+                    margin-bottom: 12px;
                     text-transform: uppercase;
-                    letter-spacing: 1px;
+                    letter-spacing: 1.5px;
                 }}
                 .otp {{
                     font-size: 32px;
                     font-weight: 700;
-                    color: #553c9a;
-                    letter-spacing: 6px;
+                    color: #6f42c1;
+                    letter-spacing: 8px;
                     font-family: 'Courier New', monospace;
                     margin: 0;
+                    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
                 }}
                 .progress-container {{
-                    background: #f7fafc;
+                    background: #f8f9fa;
                     border-radius: 8px;
                     padding: 25px;
-                    margin: 30px 0;
+                    margin: 25px 0;
+                    border: 1px solid #dee2e6;
                 }}
                 .progress-title {{
-                    color: #2d3748;
+                    color: #138808;
                     font-weight: 600;
                     margin-bottom: 20px;
                     font-size: 16px;
@@ -941,21 +1001,21 @@ class UpdatePasswordOtpSender(BaseOtpEmailSender):
                     font-size: 14px;
                 }}
                 .step-completed {{
-                    background: #48bb78;
+                    background: #28a745;
                     color: white;
                 }}
                 .step-active {{
-                    background: #6b46c1;
+                    background: #6f42c1;
                     color: white;
                     animation: subtlePulse 2s infinite;
                 }}
                 .step-pending {{
-                    background: #e2e8f0;
-                    color: #a0aec0;
+                    background: #e9ecef;
+                    color: #6c757d;
                 }}
                 .step-label {{
                     font-size: 12px;
-                    color: #718096;
+                    color: #6c757d;
                     font-weight: 500;
                 }}
                 .progress-line {{
@@ -964,24 +1024,24 @@ class UpdatePasswordOtpSender(BaseOtpEmailSender):
                     left: 15%;
                     right: 15%;
                     height: 2px;
-                    background: #e2e8f0;
+                    background: #e9ecef;
                     z-index: 1;
                 }}
                 .progress-fill {{
                     height: 100%;
-                    background: #48bb78;
+                    background: #28a745;
                     width: 50%;
                     border-radius: 1px;
                 }}
                 .security-tips {{
-                    background: #f0f9ff;
-                    border-left: 4px solid #0ea5e9;
+                    background: #e3f2fd;
+                    border-left: 4px solid #2196f3;
                     border-radius: 6px;
                     padding: 20px;
-                    margin: 30px 0;
+                    margin: 25px 0;
                 }}
                 .tips-title {{
-                    color: #0c4a6e;
+                    color: #0d47a1;
                     font-weight: 600;
                     margin-bottom: 15px;
                     font-size: 14px;
@@ -991,149 +1051,140 @@ class UpdatePasswordOtpSender(BaseOtpEmailSender):
                     align-items: flex-start;
                     margin-bottom: 8px;
                     font-size: 14px;
-                    color: #0369a1;
+                    color: #1565c0;
                 }}
                 .tip-bullet {{
                     margin-right: 8px;
                     margin-top: 2px;
                 }}
                 .security-notice {{
-                    background: #fffaf0;
-                    border-left: 4px solid #dd6b20;
+                    background: #fff3cd;
+                    border-left: 4px solid #ffc107;
                     border-radius: 6px;
                     padding: 20px;
-                    margin: 30px 0;
+                    margin: 25px 0;
                 }}
                 .notice-title {{
-                    color: #c05621;
+                    color: #856404;
                     font-weight: 600;
                     margin-bottom: 8px;
                     font-size: 14px;
                 }}
                 .notice-text {{
-                    color: #744210;
+                    color: #664d03;
                     font-size: 14px;
                     margin: 0;
                 }}
                 .footer {{
-                    background: #2d3748;
-                    color: #a0aec0;
-                    padding: 30px;
+                    background: #138808;
+                    color: #ffffff;
+                    padding: 25px;
                     text-align: center;
-                    font-size: 14px;
+                    font-size: 13px;
                 }}
                 .footer-link {{
-                    color: #63b3ed;
+                    color: #FFE5B4;
                     text-decoration: none;
                 }}
                 .divider {{
-                    height: 1px;
-                    background: #e2e8f0;
-                    margin: 30px 0;
+                    height: 2px;
+                    background: linear-gradient(90deg, #FF6600, #138808, #FF6600);
+                    margin: 25px 0;
+                }}
+                .satyamev {{
+                    color: #138808;
+                    font-size: 12px;
+                    font-weight: 600;
+                    margin-top: 10px;
+                    font-style: italic;
                 }}
             </style>
         </head>
         <body>
             <div class="container">
                 <div class="header">
-                    <div class="logo">🔐 Sākṣin</div>
-                    <div class="subtitle">Account Security Center</div>
+                    <div class="gov-emblem">🇮🇳</div>
+                    <div class="logo">GOVERNMENT OF INDIA</div>
+                    <div class="subtitle">Multi-Purpose Online Survey Platform</div>
+                    <div class="hindi-text">भारत सरकार - MPOS</div>
                 </div>
                 <div class="content">
                     <div class="security-badge">🔄</div>
-                    <h1 class="title">Password Update Request</h1>
+                    <h1 class="title">पासवर्ड अपडेट अनुरोध / Password Update Request</h1>
                     <p class="description">
+                        आपने अपने खाते का पासवर्ड अपडेट करने का अनुरोध किया है। इस सुरक्षा-संवेदनशील कार्रवाई के साथ आगे बढ़ने के लिए कृपया नीचे दिए गए प्राधिकरण कोड का उपयोग करें।<br><br>
                         You have requested to update your account password. Please use the authorization code below to proceed with this security-sensitive operation.
                     </p>
                     
                     <div class="progress-container">
-                        <div class="progress-title">Security Process</div>
+                        <div class="progress-title">सुरक्षा प्रक्रिया / Security Process</div>
                         <div class="timeline">
                             <div class="progress-line">
                                 <div class="progress-fill"></div>
                             </div>
                             <div class="timeline-step">
                                 <div class="timeline-circle step-completed">✓</div>
-                                <div class="step-label">Request Initiated</div>
+                                <div class="step-label">अनुरोध शुरू किया गया / Request Initiated</div>
                             </div>
                             <div class="timeline-step">
                                 <div class="timeline-circle step-active">2</div>
-                                <div class="step-label">Email Verification</div>
+                                <div class="step-label">ईमेल सत्यापन / Email Verification</div>
                             </div>
                             <div class="timeline-step">
                                 <div class="timeline-circle step-pending">3</div>
-                                <div class="step-label">Password Update</div>
+                                <div class="step-label">पासवर्ड अपडेट / Password Update</div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="otp-section">
-                        <div class="otp-label">Authorization Code</div>
+                        <div class="otp-label">प्राधिकरण कोड / Authorization Code</div>
                         <div class="otp">{otp}</div>
                     </div>
                     
                     <div class="security-tips">
-                        <div class="tips-title">🛡️ Password Security Best Practices</div>
+                        <div class="tips-title">🛡️ पासवर्ड सुरक्षा सर्वोत्तम प्रथाएं / Password Security Best Practices</div>
                         <div class="tip-item">
                             <div class="tip-bullet">•</div>
-                            <span>Use a combination of uppercase, lowercase, numbers, and symbols</span>
+                            <span>बड़े, छोटे अक्षरों, संख्याओं और प्रतीकों का संयोजन का उपयोग करें / Use uppercase, lowercase, numbers, and symbols</span>
                         </div>
                         <div class="tip-item">
                             <div class="tip-bullet">•</div>
-                            <span>Create a password that's at least 12 characters long</span>
+                            <span>कम से कम 12 वर्णों का पासवर्ड बनाएं / Create a password that's at least 12 characters long</span>
                         </div>
                         <div class="tip-item">
                             <div class="tip-bullet">•</div>
-                            <span>Avoid using personal information or dictionary words</span>
+                            <span>व्यक्तिगत जानकारी या शब्दकोश शब्दों का उपयोग न करें / Avoid personal information or dictionary words</span>
                         </div>
                         <div class="tip-item">
                             <div class="tip-bullet">•</div>
-                            <span>Consider enabling two-factor authentication</span>
+                            <span>दो-कारक प्रमाणीकरण सक्षम करने पर विचार करें / Consider enabling two-factor authentication</span>
                         </div>
                     </div>
                     
                     <div class="security-notice">
-                        <div class="notice-title">⚠️ Important Security Information</div>
-                        <p class="notice-text">This authorization code expires in 10 minutes. If you did not request this password change, please contact our security team immediately and do not share this code.</p>
+                        <div class="notice-title">⚠️ महत्वपूर्ण सुरक्षा जानकारी / Important Security Information</div>
+                        <p class="notice-text">यह प्राधिकरण कोड 10 मिनट में समाप्त हो जाता है। यदि आपने इस पासवर्ड परिवर्तन का अनुरोध नहीं किया है, तो कृपया तुरंत हमारी सुरक्षा टीम से संपर्क करें और इस कोड को साझा न करें। / This authorization code expires in 10 minutes. If you did not request this password change, please contact our security team immediately and do not share this code.</p>
                     </div>
                     
                     <div class="divider"></div>
                     
-                    <p style="color: #718096; font-size: 14px; text-align: center; margin: 0;">
+                    <p style="color: #6c757d; font-size: 14px; text-align: center; margin: 0;">
+                        यह अनुरोध आपके खाते से शुरू किया गया था। यदि यह आप नहीं थे, तो कृपया तुरंत अपने खाते को सुरक्षित करें।<br>
                         This request was initiated from your account. If this was not you, please secure your account immediately.
                     </p>
+                    <div class="satyamev">सत्यमेव जयते</div>
                 </div>
                 <div class="footer">
-                    <p>© 2025 Sākṣin. All rights reserved.</p>
-                    <p>Security Team: <a href="mailto:security@saksin.ai" class="footer-link">security@saksin.ai</a></p>
+                    <p>© 2025 Government of India - MPOS. All rights reserved.</p>
+                    <p>सुरक्षा टीम / Security Team: <a href="mailto:security@mpos.gov.in" class="footer-link">security@mpos.gov.in</a></p>
                 </div>
             </div>
         </body>
         </html>
         """
         
-        text_content = f"Sākṣin Password Update Authorization\n\nAuthorization Code: {otp}\n\nThis code expires in 10 minutes. Use it to complete your password update.\n\nIf you did not request this change, contact security@saksin.ai immediately."
+        text_content = f"Government of India MPOS Password Update Authorization\n\nप्राधिकरण कोड / Authorization Code: {otp}\n\nयह कोड 10 मिनट में समाप्त हो जाता है। अपना पासवर्ड अपडेट पूरा करने के लिए इसका उपयोग करें।\n\nयदि आपने इस परिवर्तन का अनुरोध नहीं किया है, तो तुरंत security@mpos.gov.in से संपर्क करें।\n\nसत्यमेव जयते"
 
         self.send_email(subject, text_content, html_content=html_content)
         return otp
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
