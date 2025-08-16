@@ -1,69 +1,73 @@
-# 🎓 Sākṣin — AI-Powered MOOC Interview Platform
+# Survey Engine - Gov of India Project
 
-**Sākṣin** is an AI-driven interview system that evaluates MOOC learners in real-time using Large Language Models (LLMs), facial emotion analysis, and structured memory. It simulates a real interview with human-like interactions, evaluates candidate responses, and provides feedback to help learners grow and prepare for real-world technical interviews.
-
----
-
-## 🚀 Features
-
-### 🎙️ Interactive AI Interviews
-- Dynamic, real-time questioning using LLMs (e.g., Gemini, GPT)
-- Context-aware follow-up questions
-- Long-session memory with Redis
-
-### 🧠 LLM Memory Management
-- Uses Redis to store and retrieve previous Q&A
-- Maintains conversation context even across disconnects
-- Reduces token overload using summarization for long chats
-
-### 📸 Emotion Detection via Webcam
-- Captures live video through WebRTC
-- Analyzes facial expressions using DeepFace
-- Stores emotion states during responses to evaluate confidence
-
-### 📊 Final Evaluation Report
-- Auto-evaluation using LLM:
-  - Score out of 10
-  - Strengths & Weaknesses
-  - Category-wise breakdown (Tech, Communication, Confidence)
-- Suggestions for improvement
-- Stored with session ID for later access
-
-### 📁 Secure Cloud-based Storage
-- Interview data stored securely (Redis + PostgreSQL)
-- Video & audio can optionally be stored for review (TBD)
+## Overview
+The **Survey Engine** is a multi-channel platform designed to collect, process, and analyze surveys across **WhatsApp, mobile, web, and AI avatars**. It enables government agencies to gather data efficiently, engage users interactively, and make data-driven decisions.
 
 ---
 
-## 🧱 Tech Stack
+## System Flow
 
-| Layer          | Tech                             |
-|----------------|----------------------------------|
-| Frontend       | Next.js, Tailwind, Framer Motion |
-| Backend        | Django + DRF                     |
-| Realtime Comm  | WebRTC, WebSockets               |
-| LLM Integration| LangChain + Gemini               |
-| Memory Store   | Redis                            |
-| Emotion Engine | DeepFace                         |
-| Database       | PostgreSQL                       |
-| Hosting        | Render      |
+### 1. User Interaction
+- Users can access surveys via:
+  - **WhatsApp**: Chat-based survey flow using WhatsApp Business API.  
+  - **Mobile App**: Native app interface with notifications and survey reminders.  
+  - **Web Portal**: Browser-based form submission.  
+  - **AI Avatar**: Interactive voice/video survey experience with AI avatars.  
+
+### 2. Authentication & User Identification
+- Users are identified via:
+  - Phone number (WhatsApp/mobile)  
+  - Login credentials (web portal)  
+  - Voice/face recognition (AI avatar)  
+- User sessions are tracked for personalized survey experience and progress saving.
+
+### 3. Survey Delivery
+- Surveys are dynamically fetched based on:
+  - User type (citizen, officer, official)  
+  - Survey campaign  
+  - Channel (WhatsApp, web, mobile, AI)  
+- Question types supported:
+  - Multiple choice  
+  - Free text  
+  - Rating scales  
+  - Multimedia input (images, audio, video)
+
+### 4. Real-Time Response Capture
+- Responses are captured **immediately** across all channels.  
+- Validation and formatting are applied to ensure consistency.  
+- Responses are linked to the user profile and session.
+
+### 5. Data Storage
+- All responses are stored in a **centralized database**.  
+- Tables are organized per module:
+  - `users`  
+  - `surveys`  
+  - `questions`  
+  - `responses`  
+  - `sessions`  
+- Historical data is preserved for analysis and reporting.
+
+### 6. Analysis & Reporting
+- Collected data is processed to generate:
+  - Individual response summaries  
+  - Survey completion metrics  
+  - Trends and insights  
+- Authorized personnel can access dashboards or export reports.
+
+### 7. AI Avatar & Interactive Feedback
+- AI avatars provide:
+  - Personalized greetings and survey guidance  
+  - Real-time clarification for survey questions  
+  - Conversational feedback based on user responses
+
+### 8. Notifications & Reminders
+- Automated notifications are sent via:
+  - WhatsApp  
+  - Mobile push notifications  
+  - Email alerts  
+- Ensures maximum participation and survey completion.
 
 ---
 
-## 🧩 Architecture Overview
+## High-Level Flow Diagram
 
-```text
-                +------------------+
-                |   Frontend (Next.js)   |
-                +----------+-------+
-                           |
-        +------------------+------------------+
-        | WebRTC Video Feed     | WebSockets Chat |
-        |                      |                  |
-+---------------+     +----------------+     +-----------------+
-|  DeepFace API |<--->| Django + DRF   |<--->| LangChain + LLM |
-+---------------+     +----------------+     +-----------------+
-                           |
-                  +--------+--------+
-                  |    Redis Memory  |
-                  +-----------------+
