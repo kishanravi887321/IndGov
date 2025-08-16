@@ -1,8 +1,22 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useAuth } from "@/contexts/AuthContext"
+import { useRouter } from "next/navigation"
 
 export default function HomePage() {
+  const { user, isAuthenticated, isLoading } = useAuth()
+  const router = useRouter()
+
+  const handleDashboardRedirect = () => {
+    if (user?.role === 'admin') {
+      router.push('/admin')
+    } else {
+      router.push('/survey')
+    }
+  }
   return (
     <div className="min-h-screen bg-white">
       {/* Top Government Bar */}
@@ -60,19 +74,42 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
-            <Link href="/survey">
-              <Button className="bg-saffron hover:bg-saffron/90 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-lg">
-                Start Survey
-              </Button>
-            </Link>
-            <Link href="/admin">
-              <Button
-                variant="outline"
-                className="border-2 border-green text-green hover:bg-green hover:text-white px-10 py-4 text-lg font-semibold bg-transparent rounded-lg"
-              >
-                Admin Login
-              </Button>
-            </Link>
+            {!isLoading && (
+              <>
+                {isAuthenticated ? (
+                  <Button 
+                    onClick={handleDashboardRedirect}
+                    className="bg-saffron hover:bg-saffron/90 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-lg"
+                  >
+                    Go to Dashboard
+                  </Button>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <Button className="bg-saffron hover:bg-saffron/90 text-white px-10 py-4 text-lg font-semibold rounded-lg shadow-lg">
+                        Login Portal
+                      </Button>
+                    </Link>
+                    <Link href="/signup">
+                      <Button
+                        variant="outline"
+                        className="border-2 border-green text-green hover:bg-green hover:text-white px-10 py-4 text-lg font-semibold bg-transparent rounded-lg"
+                      >
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                <Link href="/survey">
+                  <Button
+                    variant="outline"
+                    className="border-2 border-navy text-navy hover:bg-navy hover:text-white px-10 py-4 text-lg font-semibold bg-transparent rounded-lg"
+                  >
+                    Guest Survey
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
@@ -94,6 +131,202 @@ export default function HomePage() {
                 <div className="text-grey">Data Accuracy</div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Recent Survey Analytics */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-navy text-center mb-8">Recent Survey Analytics</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-blue-600 mb-2">1,234</div>
+                  <div className="text-blue-800 font-medium">Survey Responses Today</div>
+                  <div className="text-sm text-blue-600 mt-2">↑ 12% from yesterday</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-green-600 mb-2">5,678</div>
+                  <div className="text-green-800 font-medium">Active Users This Week</div>
+                  <div className="text-sm text-green-600 mt-2">↑ 8% from last week</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-purple-600 mb-2">23</div>
+                  <div className="text-purple-800 font-medium">Active Surveys</div>
+                  <div className="text-sm text-purple-600 mt-2">3 new surveys launched</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+                <CardContent className="p-6 text-center">
+                  <div className="text-4xl font-bold text-orange-600 mb-2">92%</div>
+                  <div className="text-orange-800 font-medium">Completion Rate</div>
+                  <div className="text-sm text-orange-600 mt-2">↑ 5% improvement</div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Quick Graph Visualization */}
+            <Card className="p-6">
+              <CardHeader>
+                <CardTitle className="text-center text-navy">Survey Participation Trends (Last 7 Days)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-end justify-center space-x-4 h-32">
+                  <div className="flex flex-col items-center">
+                    <div className="bg-blue-500 w-8 h-16 rounded-t"></div>
+                    <div className="text-xs mt-2">Mon</div>
+                    <div className="text-xs text-grey">1.2k</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-blue-500 w-8 h-20 rounded-t"></div>
+                    <div className="text-xs mt-2">Tue</div>
+                    <div className="text-xs text-grey">1.5k</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-blue-500 w-8 h-12 rounded-t"></div>
+                    <div className="text-xs mt-2">Wed</div>
+                    <div className="text-xs text-grey">0.9k</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-blue-500 w-8 h-24 rounded-t"></div>
+                    <div className="text-xs mt-2">Thu</div>
+                    <div className="text-xs text-grey">1.8k</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-blue-500 w-8 h-28 rounded-t"></div>
+                    <div className="text-xs mt-2">Fri</div>
+                    <div className="text-xs text-grey">2.1k</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-blue-500 w-8 h-18 rounded-t"></div>
+                    <div className="text-xs mt-2">Sat</div>
+                    <div className="text-xs text-grey">1.3k</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="bg-blue-500 w-8 h-22 rounded-t"></div>
+                    <div className="text-xs mt-2">Sun</div>
+                    <div className="text-xs text-grey">1.6k</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Development Engine & Plugins Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-navy text-center mb-12">Development Engine & Integrations</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 border-l-4 border-l-green">
+              <CardContent className="text-center p-0">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-green-600 text-3xl">💬</span>
+                </div>
+                <h3 className="text-xl font-semibold text-navy mb-3">WhatsApp Plugin</h3>
+                <p className="text-grey leading-relaxed mb-4">
+                  Seamless survey integration with WhatsApp Business API for mass outreach and data collection.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="bg-green-50 p-2 rounded">
+                    <span className="font-medium">Features:</span> Auto-responses, Survey links, Status tracking
+                  </div>
+                  <div className="text-green-600 font-medium">Status: Active ✓</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 border-l-4 border-l-blue-500">
+              <CardContent className="text-center p-0">
+                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-blue-600 text-3xl">📱</span>
+                </div>
+                <h3 className="text-xl font-semibold text-navy mb-3">Mobile App SDK</h3>
+                <p className="text-grey leading-relaxed mb-4">
+                  Native mobile application with offline capabilities and real-time synchronization.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="bg-blue-50 p-2 rounded">
+                    <span className="font-medium">Platforms:</span> Android, iOS
+                  </div>
+                  <div className="text-blue-600 font-medium">Status: In Development 🔧</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 border-l-4 border-l-purple-500">
+              <CardContent className="text-center p-0">
+                <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-purple-600 text-3xl">🤖</span>
+                </div>
+                <h3 className="text-xl font-semibold text-navy mb-3">AI Avatar Assistant</h3>
+                <p className="text-grey leading-relaxed mb-4">
+                  Interactive AI-powered virtual assistant for guided survey completion and user support.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="bg-purple-50 p-2 rounded">
+                    <span className="font-medium">Languages:</span> Hindi, English + 20 more
+                  </div>
+                  <div className="text-purple-600 font-medium">Status: Beta Testing 🧪</div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 border-l-4 border-l-orange-500">
+              <CardContent className="text-center p-0">
+                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <span className="text-orange-600 text-3xl">🔌</span>
+                </div>
+                <h3 className="text-xl font-semibold text-navy mb-3">API Gateway</h3>
+                <p className="text-grey leading-relaxed mb-4">
+                  RESTful API endpoints for third-party integrations and custom application development.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div className="bg-orange-50 p-2 rounded">
+                    <span className="font-medium">Rate Limit:</span> 10,000 req/hour
+                  </div>
+                  <div className="text-orange-600 font-medium">Status: Production Ready 🚀</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Developer Resources */}
+          <div className="mt-12 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-8">
+            <h3 className="text-2xl font-bold text-navy text-center mb-6">Developer Resources</h3>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card className="p-4 hover:shadow-lg transition-shadow">
+                <CardContent className="text-center p-0">
+                  <div className="text-2xl mb-3">📚</div>
+                  <h4 className="font-semibold text-navy mb-2">API Documentation</h4>
+                  <p className="text-sm text-grey mb-3">Comprehensive guides and code examples</p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    View Docs
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card className="p-4 hover:shadow-lg transition-shadow">
+                <CardContent className="text-center p-0">
+                  <div className="text-2xl mb-3">💻</div>
+                  <h4 className="font-semibold text-navy mb-2">SDK Downloads</h4>
+                  <p className="text-sm text-grey mb-3">Ready-to-use development kits</p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Download SDKs
+                  </Button>
+                </CardContent>
+              </Card>
+              <Card className="p-4 hover:shadow-lg transition-shadow">
+                <CardContent className="text-center p-0">
+                  <div className="text-2xl mb-3">🤝</div>
+                  <h4 className="font-semibold text-navy mb-2">Developer Support</h4>
+                  <p className="text-sm text-grey mb-3">Technical support and community</p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Get Support
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
 

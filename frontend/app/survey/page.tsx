@@ -13,16 +13,44 @@ import { ConfirmationModal } from "@/components/ui/confirmation-modal"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
+// Type definitions
+interface SurveyQuestionType {
+  id: string
+  type:
+    | "text"
+    | "textarea"
+    | "multiple-choice"
+    | "multiple-select"
+    | "yes-no"
+    | "rating"
+    | "scale"
+    | "file-upload"
+    | "voice-input"
+  question: string
+  options?: string[]
+  scale?: number
+  required?: boolean
+  helpText?: string
+}
+
+interface Answers {
+  [questionId: string]: any
+}
+
+interface ValidationErrors {
+  [questionId: string]: boolean
+}
+
 export default function SurveyPage() {
-  const [questions, setQuestions] = useState([])
+  const [questions, setQuestions] = useState<SurveyQuestionType[]>([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [answers, setAnswers] = useState({})
+  const [answers, setAnswers] = useState<Answers>({})
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [language, setLanguage] = useState("en")
   const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [error, setError] = useState(null)
-  const [validationErrors, setValidationErrors] = useState({})
+  const [error, setError] = useState<string | null>(null)
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({})
   const { toast } = useToast()
 
   useEffect(() => {

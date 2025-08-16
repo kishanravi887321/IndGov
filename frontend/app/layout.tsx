@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { AuthProvider } from '@/contexts/AuthContext'
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'MoSPI Survey Platform',
+  description: 'Ministry of Statistics & Programme Implementation - Smart AI-Powered Survey Platform',
   generator: 'v0.app',
 }
 
@@ -25,7 +27,12 @@ html {
 }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
+      </body>
     </html>
   )
 }

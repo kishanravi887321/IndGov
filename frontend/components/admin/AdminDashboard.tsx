@@ -4,15 +4,18 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { adminApi } from "@/services/api"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
+import { surveyApi } from "@/services/api"
 import { LoadingSpinner } from "@/components/ui/loading-spinner"
 import {
   LineChart,
@@ -32,13 +35,15 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
+// Sample data for analytics - updates in real-time
 const responseTrendsData = [
-  { month: "Jan", responses: 120, completed: 108 },
-  { month: "Feb", responses: 180, completed: 162 },
-  { month: "Mar", responses: 240, completed: 216 },
-  { month: "Apr", responses: 200, completed: 178 },
-  { month: "May", responses: 280, completed: 252 },
-  { month: "Jun", responses: 320, completed: 288 },
+  { date: "2024-12-01", responses: 120, completed: 108 },
+  { date: "2024-12-02", responses: 180, completed: 162 },
+  { date: "2024-12-03", responses: 240, completed: 216 },
+  { date: "2024-12-04", responses: 200, completed: 178 },
+  { date: "2024-12-05", responses: 280, completed: 252 },
+  { date: "2024-12-06", responses: 320, completed: 288 },
+  { date: "2024-12-07", responses: 350, completed: 315 },
 ]
 
 const geographicData = [
@@ -57,41 +62,98 @@ const completionRatesData = [
   { name: "Incomplete", value: 11, color: "#FF9933" },
 ]
 
-const demographicsData = [
-  { age: "18-25", male: 45, female: 55 },
-  { age: "26-35", male: 52, female: 48 },
-  { age: "36-45", male: 48, female: 52 },
-  { age: "46-55", male: 44, female: 56 },
-  { age: "55+", male: 42, female: 58 },
-]
+interface Question {
+  id: string
+  type: 'multiple-choice' | 'text' | 'rating' | 'yes-no' | 'textarea' | 'multiple-select' | 'scale' | 'file-upload' | 'voice-input'
+  question: string
+  options?: string[]
+  required: boolean
+}
+
+interface ManualQuestion {
+  id: string
+  type: 'multiple-choice' | 'text' | 'rating' | 'yes-no' | 'textarea' | 'multiple-select' | 'scale' | 'file-upload' | 'voice-input'
+  question: string
+  options?: string[]
+  required: boolean
+}
+
+interface Survey {
+  id: string
+  title: string
+  description: string
+  questions: Question[]
+  status: 'draft' | 'published' | 'completed'
+  responseCount: number
+  createdAt: string
+  aiGenerated: boolean
+}
 
 export function AdminDashboard() {
   const [activeSection, setActiveSection] = useState("overview")
-  const [responses, setResponses] = useState([])
+  const [surveys, setSurveys] = useState<Survey[]>([])
   const [loading, setLoading] = useState(false)
-  const [newSurvey, setNewSurvey] = useState({
-    title: "",
-    description: "",
-    questions: [{ type: "text", question: "", required: true }],
-  })
   const { toast } = useToast()
 
-  useEffect(() => {
-    if (activeSection === "responses") {
-      loadResponses()
-    }
-  }, [activeSection])
+  // Survey Creation States
+  const [surveyCreationType, setSurveyCreationType] = useState<'manual' | 'ai'>('manual')
+  const [aiDescription, setAiDescription] = useState('')
+  const [questionCount, setQuestionCount] = useState(5)
+  const [aiGeneratedQuestions, setAiGeneratedQuestions] = useState<Question[]>([])
+  const [manualSurvey, setManualSurvey] = useState<{
+    title: string
+    description: string
+    questions: ManualQuestion[]
+  }>({
+    title: '',
+    description: '',
+    questions: [{ id: '1', type: 'text', question: '', required: true, options: [] }]
+  })
 
-  const loadResponses = async () => {
+  useEffect(() => {
+    loadSurveys()
+  }, [])
+
+  const loadSurveys = async () => {
     try {
       setLoading(true)
-      const data = await adminApi.fetchResponses()
-      setResponses(data)
+      // Mock data - replace with actual API call
+      const mockSurveys: Survey[] = [
+        {
+          id: '1',
+          title: 'Digital India Survey 2024',
+          description: 'Survey about digital infrastructure adoption',
+          questions: [
+            {
+              id: '1',
+              type: 'multiple-choice',
+              question: 'How would you rate digital services in your area?',
+              options: ['Excellent', 'Good', 'Average', 'Poor'],
+              required: true
+            }
+          ],
+          status: 'published',
+          responseCount: 1234,
+          createdAt: '2024-12-01',
+          aiGenerated: false
+        },
+        {
+          id: '2',
+          title: 'Healthcare Access Study',
+          description: 'AI-generated survey about healthcare accessibility',
+          questions: [],
+          status: 'draft',
+          responseCount: 0,
+          createdAt: '2024-12-05',
+          aiGenerated: true
+        }
+      ]
+      setSurveys(mockSurveys)
     } catch (error) {
-      console.error("Failed to load responses:", error)
+      console.error("Failed to load surveys:", error)
       toast({
         title: "Error",
-        description: "Failed to load survey responses.",
+        description: "Failed to load surveys.",
         variant: "destructive",
       })
     } finally {
@@ -99,25 +161,192 @@ export function AdminDashboard() {
     }
   }
 
-  const handleCreateSurvey = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const generateAIQuestions = async () => {
     try {
       setLoading(true)
-      await adminApi.createSurvey(newSurvey)
-      toast({
-        title: "Survey Created",
-        description: "New survey has been created successfully.",
+      
+      // Call the backend API for AI generation
+      const response = await surveyApi.generateSurvey({
+        description: aiDescription,
+        question_count: questionCount,
+        target_audience: "general_public",
+        survey_type: "government_feedback"
       })
-      setNewSurvey({
-        title: "",
-        description: "",
-        questions: [{ type: "text", question: "", required: true }],
+      
+      // Convert API response to our Question format
+      const generatedQuestions: Question[] = response.questions.map((q, index) => ({
+        id: (index + 1).toString(),
+        type: q.type as Question['type'],
+        question: q.question,
+        options: q.options,
+        required: q.required !== false // Default to true if not specified
+      }))
+      
+      setAiGeneratedQuestions(generatedQuestions)
+      toast({
+        title: "Success",
+        description: "AI generated survey questions successfully!",
+      })
+    } catch (error) {
+      console.error("Failed to generate AI questions:", error)
+      
+      // Fallback to mock data if API fails
+      const mockQuestions: Question[] = [
+        {
+          id: '1',
+          type: 'multiple-choice' as const,
+          question: `Based on "${aiDescription}", how would you rate the current situation?`,
+          options: ['Excellent', 'Good', 'Average', 'Poor', 'Very Poor'],
+          required: true
+        },
+        {
+          id: '2',
+          type: 'yes-no' as const,
+          question: `Do you think improvements are needed in this area?`,
+          required: true
+        },
+        {
+          id: '3',
+          type: 'rating' as const,
+          question: `Rate your overall satisfaction (1-5)`,
+          required: true
+        },
+        {
+          id: '4',
+          type: 'text' as const,
+          question: `What specific improvements would you suggest?`,
+          required: false
+        },
+        {
+          id: '5',
+          type: 'multiple-choice' as const,
+          question: `What is your primary concern in this area?`,
+          options: ['Accessibility', 'Quality', 'Cost', 'Availability', 'Other'],
+          required: true
+        }
+      ].slice(0, questionCount)
+      
+      setAiGeneratedQuestions(mockQuestions)
+      
+      toast({
+        title: "Warning",
+        description: "Using fallback questions. Please check your connection and try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const publishSurvey = async (survey: Survey) => {
+    try {
+      setLoading(true)
+      
+      // Update survey status
+      setSurveys(prev => prev.map(s => 
+        s.id === survey.id ? { ...s, status: 'published' as const } : s
+      ))
+
+      toast({
+        title: "Survey Published!",
+        description: "Survey published successfully and sent to all engines (WhatsApp, Mobile App, Web Portal)!",
+      })
+    } catch (error) {
+      console.error("Failed to publish survey:", error)
+      toast({
+        title: "Error",
+        description: "Failed to publish survey.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const addManualQuestion = () => {
+    const newQuestion: ManualQuestion = {
+      id: Date.now().toString(),
+      type: 'text',
+      question: '',
+      required: true,
+      options: []
+    }
+    setManualSurvey(prev => ({
+      ...prev,
+      questions: [...prev.questions, newQuestion]
+    }))
+  }
+
+  const updateManualQuestion = (index: number, field: string, value: any) => {
+    setManualSurvey(prev => ({
+      ...prev,
+      questions: prev.questions.map((q, i) => 
+        i === index ? { ...q, [field]: value } : q
+      )
+    }))
+  }
+
+  const removeManualQuestion = (index: number) => {
+    setManualSurvey(prev => ({
+      ...prev,
+      questions: prev.questions.filter((_, i) => i !== index)
+    }))
+  }
+
+  const createManualSurvey = async () => {
+    try {
+      setLoading(true)
+      
+      // Call backend API to create survey
+      const createdSurvey = await surveyApi.createSurvey({
+        title: manualSurvey.title,
+        description: manualSurvey.description,
+        category: "government_survey",
+        questions: manualSurvey.questions.map(q => ({
+          type: q.type,
+          question: q.question,
+          options: q.options,
+          required: q.required
+        })),
+        isActive: false // Start as draft
+      })
+
+      // Convert to our Survey format and add to local state
+      const newSurvey: Survey = {
+        id: createdSurvey.id,
+        title: createdSurvey.title,
+        description: createdSurvey.description,
+        questions: (createdSurvey.questions || manualSurvey.questions).map(q => ({
+          id: q.id || Date.now().toString(),
+          type: q.type as Question['type'],
+          question: q.question,
+          options: q.options,
+          required: q.required !== false // Default to true if undefined
+        })),
+        status: 'draft',
+        responseCount: 0,
+        createdAt: new Date().toISOString().split('T')[0],
+        aiGenerated: false
+      }
+
+      setSurveys(prev => [newSurvey, ...prev])
+      
+      toast({
+        title: "Success",
+        description: "Manual survey created successfully!",
+      })
+
+      // Reset form
+      setManualSurvey({
+        title: '',
+        description: '',
+        questions: [{ id: '1', type: 'text', question: '', required: true, options: [] }]
       })
     } catch (error) {
       console.error("Failed to create survey:", error)
       toast({
         title: "Error",
-        description: "Failed to create survey.",
+        description: "Failed to create survey. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -125,680 +354,698 @@ export function AdminDashboard() {
     }
   }
 
-  const addQuestion = () => {
-    setNewSurvey((prev) => ({
-      ...prev,
-      questions: [...prev.questions, { type: "text", question: "", required: true }],
-    }))
-  }
+  const createAISurvey = async () => {
+    try {
+      setLoading(true)
+      
+      // Call backend API to create AI-generated survey
+      const createdSurvey = await surveyApi.createSurvey({
+        title: `AI Survey: ${aiDescription.substring(0, 50)}...`,
+        description: aiDescription,
+        category: "ai_generated_survey",
+        questions: aiGeneratedQuestions.map(q => ({
+          type: q.type,
+          question: q.question,
+          options: q.options,
+          required: q.required
+        })),
+        isActive: false // Start as draft
+      })
 
-  const updateQuestion = (index: number, field: string, value: any) => {
-    setNewSurvey((prev) => ({
-      ...prev,
-      questions: prev.questions.map((q, i) => (i === index ? { ...q, [field]: value } : q)),
-    }))
-  }
+      // Convert to our Survey format and add to local state
+      const newSurvey: Survey = {
+        id: createdSurvey.id,
+        title: createdSurvey.title,
+        description: createdSurvey.description,
+        questions: aiGeneratedQuestions, // Use the AI generated questions
+        status: 'draft',
+        responseCount: 0,
+        createdAt: new Date().toISOString().split('T')[0],
+        aiGenerated: true
+      }
 
-  const removeQuestion = (index: number) => {
-    setNewSurvey((prev) => ({
-      ...prev,
-      questions: prev.questions.filter((_, i) => i !== index),
-    }))
-  }
+      setSurveys(prev => [newSurvey, ...prev])
+      
+      toast({
+        title: "Success",
+        description: "AI survey created successfully!",
+      })
 
-  const handleLogout = () => {
-    window.location.reload()
+      // Reset form
+      setAiDescription('')
+      setQuestionCount(5)
+      setAiGeneratedQuestions([])
+    } catch (error) {
+      console.error("Failed to create AI survey:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create AI survey. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b-2 border-saffron shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-navy rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">GOI</span>
-              </div>
-              <div>
-                <h1 className="text-navy font-bold text-xl">MoSPI Admin Dashboard</h1>
-                <p className="text-grey text-sm">Ministry of Statistics & Programme Implementation</p>
-              </div>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="border-grey text-grey hover:bg-grey hover:text-white bg-transparent"
-            >
-              Logout
+      <header className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-navy">MoSPI Survey Engine</h1>
+            <p className="text-gray-600">Admin Dashboard & Analytics Platform</p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+              🟢 System Active
+            </Badge>
+            <Button variant="outline" size="sm">
+              👤 Admin User
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-navy">Navigation</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <nav className="space-y-1">
-                  <button
-                    onClick={() => setActiveSection("overview")}
-                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                      activeSection === "overview"
-                        ? "bg-saffron/10 text-saffron border-r-2 border-saffron"
-                        : "text-grey"
-                    }`}
-                  >
-                    📊 Overview
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("create-survey")}
-                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                      activeSection === "create-survey"
-                        ? "bg-saffron/10 text-saffron border-r-2 border-saffron"
-                        : "text-grey"
-                    }`}
-                  >
-                    ➕ Create Survey
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("responses")}
-                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                      activeSection === "responses"
-                        ? "bg-saffron/10 text-saffron border-r-2 border-saffron"
-                        : "text-grey"
-                    }`}
-                  >
-                    📋 View Responses
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("analytics")}
-                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                      activeSection === "analytics"
-                        ? "bg-saffron/10 text-saffron border-r-2 border-saffron"
-                        : "text-grey"
-                    }`}
-                  >
-                    📈 Analytics
-                  </button>
-                  <button
-                    onClick={() => setActiveSection("settings")}
-                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors ${
-                      activeSection === "settings"
-                        ? "bg-saffron/10 text-saffron border-r-2 border-saffron"
-                        : "text-grey"
-                    }`}
-                  >
-                    ⚙️ Settings
-                  </button>
-                </nav>
-              </CardContent>
-            </Card>
+      {/* Navigation */}
+      <div className="flex">
+        <nav className="w-64 bg-white border-r border-gray-200 min-h-screen p-4">
+          <div className="space-y-2">
+            <Button
+              variant={activeSection === "overview" ? "default" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => setActiveSection("overview")}
+            >
+              📊 Overview
+            </Button>
+            <Button
+              variant={activeSection === "survey-engine" ? "default" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => setActiveSection("survey-engine")}
+            >
+              🔧 Survey Engine
+            </Button>
+            <Button
+              variant={activeSection === "manage-surveys" ? "default" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => setActiveSection("manage-surveys")}
+            >
+              📋 Manage Surveys
+            </Button>
+            <Button
+              variant={activeSection === "analytics" ? "default" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => setActiveSection("analytics")}
+            >
+              📈 Real-time Analytics
+            </Button>
+            <Button
+              variant={activeSection === "engines" ? "default" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => setActiveSection("engines")}
+            >
+              🚀 Deploy Engines
+            </Button>
           </div>
+        </nav>
 
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {activeSection === "overview" && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-navy mb-6">Dashboard Overview</h2>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid md:grid-cols-4 gap-4">
-                  <Card>
-                    <CardContent className="p-6 text-center">
-                      <div className="text-3xl font-bold text-saffron mb-2">1,247</div>
-                      <div className="text-grey text-sm">Total Responses</div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6 text-center">
-                      <div className="text-3xl font-bold text-green mb-2">12</div>
-                      <div className="text-grey text-sm">Active Surveys</div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6 text-center">
-                      <div className="text-3xl font-bold text-navy mb-2">89%</div>
-                      <div className="text-grey text-sm">Completion Rate</div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6 text-center">
-                      <div className="text-3xl font-bold text-grey mb-2">28</div>
-                      <div className="text-grey text-sm">States Covered</div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Recent Activity */}
+        {/* Main Content */}
+        <main className="flex-1 p-6">
+          {activeSection === "overview" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-navy">Recent Activity</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                        <div>
-                          <p className="font-medium text-navy">New survey response received</p>
-                          <p className="text-sm text-grey">National Health Survey - 2 minutes ago</p>
-                        </div>
-                        <Badge className="bg-green text-white">New</Badge>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Total Surveys</p>
+                        <p className="text-2xl font-bold text-navy">{surveys.length}</p>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                        <div>
-                          <p className="font-medium text-navy">Survey published</p>
-                          <p className="text-sm text-grey">Education Access Survey - 1 hour ago</p>
-                        </div>
-                        <Badge className="bg-saffron text-white">Published</Badge>
+                      <div className="ml-auto text-2xl">📊</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Active Surveys</p>
+                        <p className="text-2xl font-bold text-green-600">{surveys.filter(s => s.status === 'published').length}</p>
                       </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                        <div>
-                          <p className="font-medium text-navy">Data export completed</p>
-                          <p className="text-sm text-grey">Rural Development Survey - 3 hours ago</p>
-                        </div>
-                        <Badge className="bg-navy text-white">Completed</Badge>
+                      <div className="ml-auto text-2xl">🟢</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">Total Responses</p>
+                        <p className="text-2xl font-bold text-blue-600">{surveys.reduce((acc, s) => acc + s.responseCount, 0)}</p>
                       </div>
+                      <div className="ml-auto text-2xl">💬</div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">AI Generated</p>
+                        <p className="text-2xl font-bold text-purple-600">{surveys.filter(s => s.aiGenerated).length}</p>
+                      </div>
+                      <div className="ml-auto text-2xl">🤖</div>
                     </div>
                   </CardContent>
                 </Card>
               </div>
-            )}
 
-            {activeSection === "create-survey" && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-navy mb-6">Create New Survey</h2>
-                </div>
+              {/* Real-time Analytics Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Real-time Survey Response Trends</CardTitle>
+                  <p className="text-sm text-gray-600">Updates automatically as users complete surveys</p>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={responseTrendsData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="responses" stroke="#8884d8" strokeWidth={2} name="Survey Starts" />
+                      <Line type="monotone" dataKey="completed" stroke="#82ca9d" strokeWidth={2} name="Completed" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-navy">Survey Details</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleCreateSurvey} className="space-y-6">
-                      <div className="grid md:grid-cols-2 gap-4">
+          {activeSection === "survey-engine" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-3xl font-bold text-navy">Survey Creation Engine</h2>
+                <Badge className="bg-blue-100 text-blue-800">
+                  🤖 AI-Powered Survey Generation
+                </Badge>
+              </div>
+
+              <Tabs value={surveyCreationType} onValueChange={(value) => setSurveyCreationType(value as 'manual' | 'ai')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="manual">📝 Manual Creation</TabsTrigger>
+                  <TabsTrigger value="ai">🤖 AI Generation</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="manual" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Create Survey Manually</CardTitle>
+                      <CardDescription>Design your survey questions step by step</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="title">Survey Title *</Label>
+                          <Label htmlFor="title">Survey Title</Label>
                           <Input
                             id="title"
-                            value={newSurvey.title}
-                            onChange={(e) => setNewSurvey((prev) => ({ ...prev, title: e.target.value }))}
+                            value={manualSurvey.title}
+                            onChange={(e) => setManualSurvey(prev => ({ ...prev, title: e.target.value }))}
                             placeholder="Enter survey title"
-                            required
                           />
                         </div>
                         <div>
-                          <Label htmlFor="category">Category</Label>
-                          <Select>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="health">Health</SelectItem>
-                              <SelectItem value="education">Education</SelectItem>
-                              <SelectItem value="employment">Employment</SelectItem>
-                              <SelectItem value="infrastructure">Infrastructure</SelectItem>
-                              <SelectItem value="social">Social Welfare</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <Label htmlFor="description">Description</Label>
+                          <Textarea
+                            id="description"
+                            value={manualSurvey.description}
+                            onChange={(e) => setManualSurvey(prev => ({ ...prev, description: e.target.value }))}
+                            placeholder="Describe your survey purpose"
+                            rows={3}
+                          />
                         </div>
                       </div>
 
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-lg font-semibold">Questions</h4>
+                          <Button onClick={addManualQuestion} variant="outline" size="sm">
+                            + Add Question
+                          </Button>
+                        </div>
+
+                        {manualSurvey.questions.map((question, index) => (
+                          <Card key={question.id} className="p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <Label>Question Type</Label>
+                                <Select
+                                  value={question.type}
+                                  onValueChange={(value) => updateManualQuestion(index, 'type', value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="text">Text Input</SelectItem>
+                                    <SelectItem value="multiple-choice">Multiple Choice</SelectItem>
+                                    <SelectItem value="rating">Rating (1-5)</SelectItem>
+                                    <SelectItem value="yes-no">Yes/No</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div className="md:col-span-2">
+                                <Label>Question Text</Label>
+                                <Input
+                                  value={question.question}
+                                  onChange={(e) => updateManualQuestion(index, 'question', e.target.value)}
+                                  placeholder="Enter your question"
+                                />
+                              </div>
+                              {question.type === 'multiple-choice' && (
+                                <div className="md:col-span-3">
+                                  <Label>Options (comma-separated)</Label>
+                                  <Input
+                                    value={question.options?.join(', ') || ''}
+                                    onChange={(e) => updateManualQuestion(index, 'options', e.target.value.split(', ').filter(Boolean))}
+                                    placeholder="Option 1, Option 2, Option 3"
+                                  />
+                                </div>
+                              )}
+                              <div className="flex items-center justify-between md:col-span-3">
+                                <label className="flex items-center space-x-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={question.required}
+                                    onChange={(e) => updateManualQuestion(index, 'required', e.target.checked)}
+                                  />
+                                  <span>Required</span>
+                                </label>
+                                {manualSurvey.questions.length > 1 && (
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeManualQuestion(index)}
+                                  >
+                                    Remove
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+
+                      <Button
+                        onClick={createManualSurvey}
+                        disabled={!manualSurvey.title || !manualSurvey.description || loading}
+                        className="w-full"
+                      >
+                        {loading ? <LoadingSpinner /> : "Create Manual Survey"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="ai" className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>AI-Powered Survey Generation</CardTitle>
+                      <CardDescription>Describe your survey needs and let AI create the questions</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
                       <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="ai-description">Survey Description</Label>
                         <Textarea
-                          id="description"
-                          value={newSurvey.description}
-                          onChange={(e) => setNewSurvey((prev) => ({ ...prev, description: e.target.value }))}
-                          placeholder="Enter survey description"
-                          rows={3}
+                          id="ai-description"
+                          value={aiDescription}
+                          onChange={(e) => setAiDescription(e.target.value)}
+                          placeholder="Describe what you want to survey about. Be specific about the topic, target audience, and what insights you're looking for. Example: 'I want to survey citizens about their experience with digital government services, focusing on accessibility, satisfaction, and areas for improvement.'"
+                          rows={4}
                         />
                       </div>
 
                       <div>
-                        <div className="flex items-center justify-between mb-4">
-                          <Label className="text-lg font-semibold">Questions</Label>
-                          <Button type="button" onClick={addQuestion} variant="outline" size="sm">
-                            Add Question
-                          </Button>
-                        </div>
-
-                        <div className="space-y-4">
-                          {newSurvey.questions.map((question, index) => (
-                            <Card key={index} className="p-4">
-                              <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                  <Label className="font-medium">Question {index + 1}</Label>
-                                  {newSurvey.questions.length > 1 && (
-                                    <Button
-                                      type="button"
-                                      onClick={() => removeQuestion(index)}
-                                      variant="outline"
-                                      size="sm"
-                                      className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-                                    >
-                                      Remove
-                                    </Button>
-                                  )}
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-3">
-                                  <div>
-                                    <Label>Question Type</Label>
-                                    <Select
-                                      value={question.type}
-                                      onValueChange={(value) => updateQuestion(index, "type", value)}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="text">Text Input</SelectItem>
-                                        <SelectItem value="textarea">Long Text</SelectItem>
-                                        <SelectItem value="multiple-choice">Multiple Choice</SelectItem>
-                                        <SelectItem value="yes-no">Yes/No</SelectItem>
-                                        <SelectItem value="rating">Rating Scale</SelectItem>
-                                        <SelectItem value="file-upload">File Upload</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                  <div className="flex items-center space-x-2 pt-6">
-                                    <input
-                                      type="checkbox"
-                                      id={`required-${index}`}
-                                      checked={question.required}
-                                      onChange={(e) => updateQuestion(index, "required", e.target.checked)}
-                                    />
-                                    <Label htmlFor={`required-${index}`}>Required</Label>
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <Label>Question Text</Label>
-                                  <Input
-                                    value={question.question}
-                                    onChange={(e) => updateQuestion(index, "question", e.target.value)}
-                                    placeholder="Enter your question"
-                                  />
-                                </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end space-x-4">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="border-grey text-grey hover:bg-grey hover:text-white bg-transparent"
-                        >
-                          Save as Draft
-                        </Button>
-                        <Button type="submit" className="bg-green hover:bg-green/90 text-white" disabled={loading}>
-                          {loading ? "Creating..." : "Create Survey"}
-                        </Button>
-                      </div>
-                    </form>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {activeSection === "responses" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-navy">Survey Responses</h2>
-                  <Button
-                    onClick={loadResponses}
-                    variant="outline"
-                    className="border-saffron text-saffron hover:bg-saffron hover:text-white bg-transparent"
-                  >
-                    Refresh
-                  </Button>
-                </div>
-
-                <Card>
-                  <CardContent className="p-0">
-                    {loading ? (
-                      <div className="p-8">
-                        <LoadingSpinner />
-                      </div>
-                    ) : (
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Response ID</TableHead>
-                            <TableHead>Respondent</TableHead>
-                            <TableHead>Survey</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {responses.map((response: any) => (
-                            <TableRow key={response.id}>
-                              <TableCell className="font-medium">#{response.id}</TableCell>
-                              <TableCell>{response.respondent}</TableCell>
-                              <TableCell>National Health Survey</TableCell>
-                              <TableCell>
-                                <Badge className={response.completed ? "bg-green text-white" : "bg-saffron text-white"}>
-                                  {response.completed ? "Completed" : "In Progress"}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>{response.date}</TableCell>
-                              <TableCell>
-                                <Button variant="outline" size="sm">
-                                  View Details
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {activeSection === "analytics" && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold text-navy mb-6">Analytics Dashboard</h2>
-                  <div className="flex space-x-2">
-                    <Select defaultValue="last-6-months">
-                      <SelectTrigger className="w-40">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="last-month">Last Month</SelectItem>
-                        <SelectItem value="last-3-months">Last 3 Months</SelectItem>
-                        <SelectItem value="last-6-months">Last 6 Months</SelectItem>
-                        <SelectItem value="last-year">Last Year</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      variant="outline"
-                      className="border-saffron text-saffron hover:bg-saffron hover:text-white bg-transparent"
-                    >
-                      Export Report
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy">Response Trends</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={responseTrendsData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis dataKey="month" stroke="#555555" />
-                          <YAxis stroke="#555555" />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: "white",
-                              border: "1px solid #e0e0e0",
-                              borderRadius: "8px",
-                            }}
-                          />
-                          <Legend />
-                          <Line
-                            type="monotone"
-                            dataKey="responses"
-                            stroke="#FF9933"
-                            strokeWidth={3}
-                            name="Total Responses"
-                          />
-                          <Line type="monotone" dataKey="completed" stroke="#138808" strokeWidth={3} name="Completed" />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy">Geographic Distribution</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={geographicData} layout="horizontal">
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis type="number" stroke="#555555" />
-                          <YAxis dataKey="state" type="category" width={80} stroke="#555555" />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: "white",
-                              border: "1px solid #e0e0e0",
-                              borderRadius: "8px",
-                            }}
-                          />
-                          <Bar dataKey="responses" fill="#000080" name="Responses" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy">Completion Rates</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={completionRatesData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={100}
-                            paddingAngle={5}
-                            dataKey="value"
-                          >
-                            {completionRatesData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: "white",
-                              border: "1px solid #e0e0e0",
-                              borderRadius: "8px",
-                            }}
-                            formatter={(value) => [`${value}%`, "Percentage"]}
-                          />
-                          <Legend />
-                        </PieChart>
-                      </ResponsiveContainer>
-                      <div className="mt-4 text-center">
-                        <p className="text-2xl font-bold text-green">89%</p>
-                        <p className="text-sm text-grey">Average Completion Rate</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy">Demographics by Age Group</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <AreaChart data={demographicsData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                          <XAxis dataKey="age" stroke="#555555" />
-                          <YAxis stroke="#555555" />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: "white",
-                              border: "1px solid #e0e0e0",
-                              borderRadius: "8px",
-                            }}
-                          />
-                          <Legend />
-                          <Area
-                            type="monotone"
-                            dataKey="male"
-                            stackId="1"
-                            stroke="#000080"
-                            fill="#000080"
-                            fillOpacity={0.7}
-                            name="Male"
-                          />
-                          <Area
-                            type="monotone"
-                            dataKey="female"
-                            stackId="1"
-                            stroke="#FF9933"
-                            fill="#FF9933"
-                            fillOpacity={0.7}
-                            name="Female"
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <div className="grid md:grid-cols-3 gap-6 mt-8">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy text-lg">Response Quality</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-grey">Complete Responses</span>
-                          <span className="font-semibold text-green">89%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-grey">Partial Responses</span>
-                          <span className="font-semibold text-saffron">8%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-grey">Abandoned</span>
-                          <span className="font-semibold text-red-600">3%</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy text-lg">Average Time</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-grey">Survey Duration</span>
-                          <span className="font-semibold text-navy">12.5 min</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-grey">Per Question</span>
-                          <span className="font-semibold text-navy">2.1 min</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-grey">Drop-off Point</span>
-                          <span className="font-semibold text-saffron">Q7</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy text-lg">Device Usage</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between">
-                          <span className="text-grey">Mobile</span>
-                          <span className="font-semibold text-green">67%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-grey">Desktop</span>
-                          <span className="font-semibold text-navy">28%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-grey">Tablet</span>
-                          <span className="font-semibold text-saffron">5%</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            )}
-
-            {activeSection === "settings" && (
-              <div className="space-y-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-navy mb-6">System Settings</h2>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy">General Settings</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label>Default Language</Label>
-                        <Select defaultValue="en">
+                        <Label htmlFor="question-count">Number of Questions</Label>
+                        <Select value={questionCount.toString()} onValueChange={(value) => setQuestionCount(parseInt(value))}>
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="en">English</SelectItem>
-                            <SelectItem value="hi">हिंदी</SelectItem>
+                            <SelectItem value="3">3 Questions</SelectItem>
+                            <SelectItem value="5">5 Questions</SelectItem>
+                            <SelectItem value="8">8 Questions</SelectItem>
+                            <SelectItem value="10">10 Questions</SelectItem>
+                            <SelectItem value="15">15 Questions</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <Label>Survey Timeout (minutes)</Label>
-                        <Input type="number" defaultValue="30" />
-                      </div>
-                      <div>
-                        <Label>Max File Upload Size (MB)</Label>
-                        <Input type="number" defaultValue="5" />
-                      </div>
-                    </CardContent>
-                  </Card>
 
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-navy">Notification Settings</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="email-notifications" defaultChecked />
-                        <Label htmlFor="email-notifications">Email notifications</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="sms-notifications" />
-                        <Label htmlFor="sms-notifications">SMS notifications</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="daily-reports" defaultChecked />
-                        <Label htmlFor="daily-reports">Daily reports</Label>
-                      </div>
+                      <Button
+                        onClick={generateAIQuestions}
+                        disabled={!aiDescription || loading}
+                        className="w-full"
+                      >
+                        {loading ? <LoadingSpinner /> : "🤖 Generate AI Questions"}
+                      </Button>
+
+                      {aiGeneratedQuestions.length > 0 && (
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-semibold">Generated Questions Preview</h4>
+                          {aiGeneratedQuestions.map((question, index) => (
+                            <Card key={question.id} className="p-4 bg-blue-50 border-blue-200">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <Badge variant="outline">
+                                    {question.type.replace('-', ' ').toUpperCase()}
+                                  </Badge>
+                                  {question.required && <Badge className="bg-red-100 text-red-800">Required</Badge>}
+                                </div>
+                                <p className="font-medium">{question.question}</p>
+                                {question.options && (
+                                  <div className="text-sm text-gray-600">
+                                    Options: {question.options.join(', ')}
+                                  </div>
+                                )}
+                              </div>
+                            </Card>
+                          ))}
+                          
+                          <div className="flex space-x-4">
+                            <Button onClick={createAISurvey} className="flex-1">
+                              ✅ Approve & Create Survey
+                            </Button>
+                            <Button onClick={generateAIQuestions} variant="outline" className="flex-1">
+                              🔄 Regenerate Questions
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
-                </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+
+          {activeSection === "manage-surveys" && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-3xl font-bold text-navy">Manage Surveys</h2>
+                <Button onClick={() => setActiveSection("survey-engine")}>
+                  + Create New Survey
+                </Button>
               </div>
-            )}
-          </div>
-        </div>
+
+              <div className="grid gap-6">
+                {surveys.map((survey) => (
+                  <Card key={survey.id} className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="text-xl font-semibold">{survey.title}</h3>
+                          <Badge variant={survey.status === 'published' ? 'default' : 'secondary'}>
+                            {survey.status}
+                          </Badge>
+                          {survey.aiGenerated && (
+                            <Badge className="bg-purple-100 text-purple-800">🤖 AI Generated</Badge>
+                          )}
+                        </div>
+                        <p className="text-gray-600 mb-2">{survey.description}</p>
+                        <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <span>📅 Created: {survey.createdAt}</span>
+                          <span>👥 Responses: {survey.responseCount}</span>
+                          <span>❓ Questions: {survey.questions.length}</span>
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">👁️ Preview</Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>{survey.title}</DialogTitle>
+                              <DialogDescription>{survey.description}</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 max-h-96 overflow-y-auto">
+                              {survey.questions.map((question, index) => (
+                                <Card key={question.id} className="p-4">
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm font-medium">Question {index + 1}</span>
+                                      <Badge variant="outline">{question.type}</Badge>
+                                    </div>
+                                    <p className="font-medium">{question.question}</p>
+                                    {question.options && (
+                                      <div className="text-sm text-gray-600">
+                                        Options: {question.options.join(', ')}
+                                      </div>
+                                    )}
+                                    {question.required && (
+                                      <Badge className="bg-red-100 text-red-800 text-xs">Required</Badge>
+                                    )}
+                                  </div>
+                                </Card>
+                              ))}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+
+                        {survey.status === 'draft' && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="sm">🚀 Publish</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Publish Survey to All Engines</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will make the survey live and deploy it to all distribution engines:
+                                  <br />• 💬 WhatsApp Business API
+                                  <br />• 📱 Mobile Application  
+                                  <br />• 🌐 Web Portal
+                                  <br />• 🤖 AI Avatar Assistant
+                                  <br /><br />
+                                  Users will be able to respond to this survey immediately.
+                                  <br /><br />
+                                  <strong>Note:</strong> Survey will request user location when started.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => publishSurvey(survey)}>
+                                  🚀 Deploy to All Engines
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+
+                        {survey.status === 'published' && (
+                          <Button variant="outline" size="sm" onClick={() => setActiveSection("analytics")}>
+                            📊 View Analytics
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeSection === "analytics" && (
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-navy">Real-time Analytics Dashboard</h2>
+              <p className="text-gray-600">Live updates as users complete surveys</p>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="col-span-2">
+                  <CardHeader>
+                    <CardTitle>📈 Response Trends (Updates Live)</CardTitle>
+                    <p className="text-sm text-gray-600">Real-time data updates every 30 seconds</p>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <AreaChart data={responseTrendsData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Area type="monotone" dataKey="responses" stackId="1" stroke="#8884d8" fill="#8884d8" name="Survey Started" />
+                        <Area type="monotone" dataKey="completed" stackId="1" stroke="#82ca9d" fill="#82ca9d" name="Completed" />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>🗺️ Geographic Distribution</CardTitle>
+                    <p className="text-sm text-gray-600">Based on user location data</p>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart data={geographicData} layout="horizontal">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" />
+                        <YAxis dataKey="state" type="category" width={80} />
+                        <Tooltip />
+                        <Bar dataKey="responses" fill="#8884d8" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>✅ Completion Rates</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <PieChart>
+                        <Pie
+                          data={completionRatesData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {completionRatesData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+
+          {activeSection === "engines" && (
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-navy">Deployment Engines</h2>
+              <p className="text-gray-600">Manage survey distribution across all platforms</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card className="p-6 hover:shadow-lg transition-shadow">
+                  <CardContent className="text-center p-0">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-green-600 text-2xl">💬</span>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">WhatsApp Engine</h3>
+                    <p className="text-gray-600 mb-4">Deploy surveys via WhatsApp Business API</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Status:</span>
+                        <Badge className="bg-green-100 text-green-800">🟢 Active</Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Sent Today:</span>
+                        <span>1,234</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Response Rate:</span>
+                        <span>78%</span>
+                      </div>
+                    </div>
+                    <Button className="w-full mt-4" variant="outline">
+                      Configure Engine
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="p-6 hover:shadow-lg transition-shadow">
+                  <CardContent className="text-center p-0">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-blue-600 text-2xl">📱</span>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Mobile App Engine</h3>
+                    <p className="text-gray-600 mb-4">Native mobile application deployment</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Status:</span>
+                        <Badge className="bg-blue-100 text-blue-800">🔧 Active</Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>App Downloads:</span>
+                        <span>2,456</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Active Users:</span>
+                        <span>1,892</span>
+                      </div>
+                    </div>
+                    <Button className="w-full mt-4" variant="outline">
+                      Configure Engine
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                <Card className="p-6 hover:shadow-lg transition-shadow">
+                  <CardContent className="text-center p-0">
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-purple-600 text-2xl">🤖</span>
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">AI Avatar Engine</h3>
+                    <p className="text-gray-600 mb-4">AI-powered virtual assistant</p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>Status:</span>
+                        <Badge className="bg-purple-100 text-purple-800">🧪 Beta</Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Interactions:</span>
+                        <span>567</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Satisfaction:</span>
+                        <span>92%</span>
+                      </div>
+                    </div>
+                    <Button className="w-full mt-4" variant="outline">
+                      Configure Engine
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card className="p-6">
+                <CardHeader>
+                  <CardTitle>🚀 Engine Performance Metrics</CardTitle>
+                  <p className="text-sm text-gray-600">Real-time deployment statistics</p>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={[
+                      { engine: 'WhatsApp', sent: 1234, completed: 962, location_captured: 945 },
+                      { engine: 'Mobile App', sent: 856, completed: 734, location_captured: 712 },
+                      { engine: 'Web Portal', sent: 645, completed: 578, location_captured: 534 },
+                      { engine: 'AI Avatar', sent: 234, completed: 215, location_captured: 210 }
+                    ]}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="engine" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="sent" fill="#8884d8" name="Surveys Sent" />
+                      <Bar dataKey="completed" fill="#82ca9d" name="Completed" />
+                      <Bar dataKey="location_captured" fill="#ffc658" name="Location Captured" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   )

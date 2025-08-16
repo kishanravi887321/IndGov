@@ -92,7 +92,7 @@ class ApiService {
   }
 
   // Generic API request with retry logic and error handling
-  private async apiRequest<T = any>(
+  async apiRequest<T = any>(
     endpoint: string,
     options: RequestInit = {},
     retryCount = 0,
@@ -416,6 +416,53 @@ export const surveyApi = {
       throw new Error(response.error || "Failed to save survey progress")
     }
   },
+
+  // Generate survey using AI
+  generateSurvey: async (payload: {
+    description: string
+    question_count: number
+    target_audience?: string
+    survey_type?: string
+  }): Promise<{
+    questions: SurveyQuestion[]
+    suggested_title?: string
+    estimated_duration?: number
+  }> => {
+    const response = await apiService.apiRequest<{
+      questions: SurveyQuestion[]
+      suggested_title?: string
+      estimated_duration?: number
+    }>("/api/accounts/generate-survey/", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.success) {
+      throw new Error(response.error || "Failed to generate survey")
+    }
+
+    return response.data
+  },
+
+  // Create new survey
+  createSurvey: async (surveyData: {
+    title: string
+    description: string
+    category: string
+    questions: Omit<SurveyQuestion, "id">[]
+    isActive?: boolean
+  }): Promise<Survey> => {
+    const response = await apiService.apiRequest<Survey>("/admin/surveys", {
+      method: "POST",
+      body: JSON.stringify(surveyData),
+    })
+
+    if (!response.success) {
+      throw new Error(response.error || "Failed to create survey")
+    }
+
+    return response.data
+  },
 }
 
 // Admin API functions
@@ -526,6 +573,33 @@ export const adminApi = {
 
     if (!response.success) {
       throw new Error(response.error || "Failed to create survey")
+    }
+
+    return response.data
+  },
+
+  // Generate survey using AI
+  generateSurvey: async (payload: {
+    description: string
+    question_count: number
+    target_audience?: string
+    survey_type?: string
+  }): Promise<{
+    questions: SurveyQuestion[]
+    suggested_title?: string
+    estimated_duration?: number
+  }> => {
+    const response = await apiService.apiRequest<{
+      questions: SurveyQuestion[]
+      suggested_title?: string
+      estimated_duration?: number
+    }>("/api/accounts/generate-survey/", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.success) {
+      throw new Error(response.error || "Failed to generate survey")
     }
 
     return response.data
